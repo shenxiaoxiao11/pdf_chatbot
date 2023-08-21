@@ -1,3 +1,4 @@
 streamlit_chat
 langchain
+pip
 tempfile
