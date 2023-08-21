@@ -1,0 +1,3 @@
+streamlit_chat
+langchain
+tempfile
