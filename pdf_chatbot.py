@@ -11,6 +11,7 @@ from langchain.vectorstores import FAISS
 import tempfile
 
 def main():
+    
     st.set_page_config(
     page_title="pdf_chatbot",    #页面标题
     page_icon=":rainbow:",        #icon 
@@ -26,7 +27,11 @@ def main():
         # '''在这里可以定义任意多个全局变量，方便程序进行调用'''
         # st.session_state.random_city_index=random.choice(range(len(st.session_state.city_mapping)))
         st.balloons()
-
+    user_api_key = st.sidebar.text_input(
+        label="#### Your OpenAI API key 👇",
+        placeholder="Paste your openAI API key, sk-",
+        type="password")
+    
     uploaded_file =st.sidebar.file_uploader("upload", type="pdf",accept_multiple_files=False) 
     if uploaded_file :
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
