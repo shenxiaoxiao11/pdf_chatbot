@@ -9,9 +9,9 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.document_loaders.pdf import PyPDFLoader
 from langchain.vectorstores import FAISS
 import tempfile
-
+import os
 def main():
-    
+    os.environ["OPENAI_API_KEY"] = "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"
     st.set_page_config(
     page_title="pdf_chatbot",    #页面标题
     page_icon=":rainbow:",        #icon 
