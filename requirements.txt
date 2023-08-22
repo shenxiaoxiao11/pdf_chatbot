@@ -3,3 +3,7 @@ langchain==0.0.264
 pypdf
 openai
 tiktoken
+faiss-gpu
+sentence-transformers
+transformers
+nltk
