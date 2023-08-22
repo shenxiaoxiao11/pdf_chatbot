@@ -11,7 +11,7 @@ from langchain.vectorstores import FAISS
 import tempfile
 import os
 def main():
-    os.environ["OPENAI_API_KEY"] = "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"
+    
     st.set_page_config(
     page_title="pdf_chatbot",    #页面标题
     page_icon=":rainbow:",        #icon 
@@ -31,7 +31,7 @@ def main():
         label="#### Your OpenAI API key 👇",
         placeholder="Paste your openAI API key, sk-",
         type="password")
-    
+    os.environ["OPENAI_API_KEY"] = user_api_key
     uploaded_file =st.sidebar.file_uploader("upload", type="pdf",accept_multiple_files=False) 
     if uploaded_file :
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
