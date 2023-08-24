@@ -3,13 +3,18 @@
 
 import streamlit as st
 from streamlit_chat import message
+from langchain.document_loaders.pdf import PyPDFLoader
+from langchain.text_splitter import TextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
-from langchain.document_loaders.pdf import PyPDFLoader
+
 from langchain.vectorstores import FAISS
 import tempfile
 import os
+
+from chunks import load_pdf,split_paragraph
+
 def main():
     
     st.set_page_config(
@@ -25,32 +30,37 @@ def main():
     # 初始化全局配置
     if st.session_state.first_visit:
         # '''在这里可以定义任意多个全局变量，方便程序进行调用'''
-        # st.session_state.random_city_index=random.choice(range(len(st.session_state.city_mapping)))
         st.balloons()
     user_api_key = st.sidebar.text_input(
         label="#### Your OpenAI API key 👇",
         placeholder="Paste your openAI API key, sk-",
         type="password")
+    
     os.environ["OPENAI_API_KEY"] = user_api_key
+
     uploaded_file =st.sidebar.file_uploader("upload", type="pdf",accept_multiple_files=False) 
     if uploaded_file :
+        #use tempfile because PyPDFLoader only accepts a file_path
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             # get temp_file_path
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
             # load data
-            loader = PyPDFLoader(tmp_file_path)
-            data = loader.load()
-
-            #use tempfile because PyPDFLoader only accepts a file_path
-        
+            # loader = PyPDFLoader(tmp_file_path)       
+            # data = loader.load()#此时的输出为list[Documents(,,)]
+            # 将data中内容的字符串变成chunks
+            # 如何将列表中的langchain定义的Document类型的第一项的变量的值进行chunk划分
+            # average_embedding_vector = len_safe_get_embedding(data, average=True)
+            content=load_pdf(tmp_file_path)
+            data=split_paragraph(content,tmp_file_path)
             # 这是streamlit的瑞士军刀，返回为None,可以根据输入的不同产生不同的效果
             st.write(data)
-
             embeddings = OpenAIEmbeddings()
+
             vectorstore = FAISS.from_documents(data, embeddings)
             chain = ConversationalRetrievalChain.from_llm(
                 llm = ChatOpenAI(temperature=0.0,model_name='gpt-3.5-turbo'),retriever=vectorstore.as_retriever())
+        
         class MyRandom:
             def __init__(self,num):
                 self.random_num=num
