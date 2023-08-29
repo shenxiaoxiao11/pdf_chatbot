@@ -1,6 +1,10 @@
 streamlit_chat==0.1.1
 langchain==0.0.264
+<<<<<<< HEAD
 PyMuPDF
+=======
+PyPDF2
+>>>>>>> 7adf31b5ba124d99a7e8bfe63f3ef78109f41aa3
 openai
 tiktoken
 faiss-gpu
