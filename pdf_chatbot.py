@@ -38,29 +38,29 @@ def main():
     
     os.environ["OPENAI_API_KEY"] = user_api_key
 
-    uploaded_file =st.sidebar.file_uploader("upload", type="pdf",accept_multiple_files=False) 
+    uploaded_file =st.sidebar.file_uploader("upload", type="pdf",accept_multiple_files=True) 
     if uploaded_file :
+        for singlefile in uploaded_file:
         #use tempfile because PyPDFLoader only accepts a file_path
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            # get temp_file_path
-            tmp_file.write(uploaded_file.getvalue())
-            tmp_file_path = tmp_file.name
-            # load data
-            # loader = PyPDFLoader(tmp_file_path)       
-            # data = loader.load()#此时的输出为list[Documents(,,)]
-            # 将data中内容的字符串变成chunks
-            # 如何将列表中的langchain定义的Document类型的第一项的变量的值进行chunk划分
-            # average_embedding_vector = len_safe_get_embedding(data, average=True)
-            content=load_pdf(tmp_file_path)
-            data=split_paragraph(content,tmp_file_path)
-            # 这是streamlit的瑞士军刀，返回为None,可以根据输入的不同产生不同的效果
-            st.write(data)
-            embeddings = OpenAIEmbeddings()
+            with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                # get temp_file_path
+                tmp_file.write(singlefile.getvalue())
+                tmp_file_path = tmp_file.name
+                # load data
+                # loader = PyPDFLoader(tmp_file_path)       
+                # data = loader.load()#此时的输出为list[Documents(,,)]
+                # 将data中内容的字符串变成chunks
+                # 如何将列表中的langchain定义的Document类型的第一项的变量的值进行chunk划分
+                content=load_pdf(tmp_file_path)
+                data=split_paragraph(content,tmp_file_path)
+                # 这是streamlit的瑞士军刀，返回为None,可以根据输入的不同产生不同的效果
+                st.write(data)
+                embeddings = OpenAIEmbeddings()
 
-            vectorstore = FAISS.from_documents(data, embeddings)
-            chain = ConversationalRetrievalChain.from_llm(
-                llm = ChatOpenAI(temperature=0.0,model_name='gpt-3.5-turbo'),retriever=vectorstore.as_retriever())
-        
+                vectorstore = FAISS.from_documents(data, embeddings)
+                chain = ConversationalRetrievalChain.from_llm(
+                    llm = ChatOpenAI(temperature=0.0,model_name='gpt-3.5-turbo'),retriever=vectorstore.as_retriever())
+            
         class MyRandom:
             def __init__(self,num):
                 self.random_num=num
@@ -86,17 +86,15 @@ def main():
             st.session_state['history'] = []
 
         if 'generated' not in st.session_state:
-            st.session_state['generated'] = ["Hello ! Ask me anything about " +uploaded_file.name+ "  "]
+            st.session_state['generated'] = ["Hello ! Ask me anything about " +str([i.name for i in uploaded_file])+ "  "]
 
         if 'past' not in st.session_state:
             st.session_state['past'] = ["Hey ! "]
-
 
         #container for the chat history
         response_container = st.container()
         #container for the user's text input
         container = st.container()
-
 
         #  UI部分
         # with后面必须跟一个上下文管理器

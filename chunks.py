@@ -1,15 +1,14 @@
 from langchain.docstore.document import Document
-import PyPDF2
+import fitz
 import re
-
+print(fitz.__doc__)
 def load_pdf(filename):
-    pdf_file = open(filename, 'rb')
-    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    pdf_reader = fitz.open(filename)
 
     text = ''
-    for num in range(len(pdf_reader.pages)):
-        page = pdf_reader.pages[num]
-        text += page.extract_text()
+    for num in range(pdf_reader.page_count):
+        page = pdf_reader.load_page(num)
+        text += page.get_text(text)
     return text
 
 # 自定义句子分段的方式，保证句子不被截断
